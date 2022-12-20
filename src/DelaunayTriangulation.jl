@@ -22,6 +22,8 @@ include("deberg.jl")
 include("gmsh.jl")
 include("convex_hull.jl")
 include("structured.jl")
+include("refine.jl")
+
 #=
 include("voronoi.jl")
 =#

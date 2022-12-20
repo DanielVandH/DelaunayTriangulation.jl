@@ -1,3 +1,48 @@
+#= Here's a list of all the functions in this file, just to make browsing simpler:
+    is_boundary_edge 
+    is_boundary_triangle 
+    is_ghost_edge 
+    is_ghost_triangle 
+    edge_exists 
+    is_boundary_point 
+    choose_uvw 
+    rotate_triangle_to_boundary_form
+    rotate_ghost_triangle_to_boundary_form
+    is_delaunay 
+    validate_triangulation
+    clear_empty_keys!
+    clear_empty_points! 
+    compare_triangle_sets 
+    compare_unconstrained_triangulations
+    setdiff_triangles
+    check_adjacent_is_adjacent2vertex_inverse
+    clear_centroid_coordinates! 
+    update_centroid_after_new_point!
+    update_centroid_after_deleted_point! 
+    compute_centroid! 
+    triangulation_has_ghost_triangles
+    add_ghost_triangles! 
+    remove_ghost_triangles!
+    compare_deberg_to_bowyerwatson
+    select_valid_start_of_vector
+    sort_triangle
+    sort_triangles 
+    remove_duplicate_triangles
+    sort_boundary!
+    area 
+    find_first_boundary_index
+    cross_2d 
+    intersection_of_two_line_segments
+    nextindex_circular
+    previndex_circular
+    is_vertex_of
+    compare_triangles
+    all_points_are_unique
+    edge_midpoint 
+    edge_length
+    opposite_angle_is_obtuse
+=#
+
 """
     is_boundary_edge(i, j, adj::Adjacent{I, E}) where {I, E}
     is_boundary_edge(i, j, adj2v::Adjacent{I, E}) where {I, E}
@@ -622,7 +667,7 @@ function find_first_boundary_index(v)
 end
 
 """
-    corss_2d(u, v)
+    cross_2d(u, v)
 
 Computes the product `2d_cross(u, v) = ux * vy - uy * vx`.
 """
@@ -709,3 +754,43 @@ function all_points_are_unique(pts) # see also allunique
     vec_pts = [get_point(pts, i) for i in _eachindex(pts)]
     return allunique(vec_pts)
 end
+
+"""
+    edge_midpoint(e, pts)
+
+Given an edge `e` and a set of points `pts`, returns the coordinates for the midpoint 
+of the edge.
+"""
+@inline function edge_midpoint(e, pts)
+    u, v = e
+    pᵤ, pᵥ = get_point(pts, u, v)
+    mx = (getx(pᵤ) + getx(pᵥ)) / 2
+    my = (gety(pᵤ) + gety(pᵥ)) / 2
+    return mx, my
+end
+
+"""
+    edge_length(e, pts)
+
+Given an edge `e` and a set of points `pts`, returns the length of the edge.
+"""
+@inline function edge_length(e, pts)
+    u, v = e
+    pᵤ, pᵥ = get_point(pts, u, v)
+    xᵤ, yᵤ = getx(pᵤ), gety(pᵤ)
+    xᵥ, yᵥ = getx(pᵥ), gety(pᵥ)
+    ℓ = sqrt((xᵤ - xᵥ)^2 + (yᵤ - yᵥ)^2)
+    return ℓ
+end
+
+"""
+    opposite_angle_is_obtuse(a, b, c)
+
+Given a triangle with edge lengths `a`, `b`, and `c`, returns `true` 
+if the angle opposite the edge with length `c` exceeds 90°.
+
+Uses the law of cosines so that cos(C) = (c^2 - a^2 - b^2)/(2ab), 
+where C is the opposite angle, then cos(C) < 0 means C > 90°. Thus, 
+c^2 < a^2 + b^2 will mean that C > 90°.
+"""
+@inline opposite_angle_is_obtuse(a, b, c) = c^2 < a^2 + b^2

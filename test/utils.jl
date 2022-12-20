@@ -870,12 +870,63 @@ end
 end
 
 @testset "Testing if a point set is unique" begin
-pts = [[1.0, 2.0], [3.0, 4.0]]
-@test DT.all_points_are_unique(pts)
-push!(pts, [3.0, 4.0])
-@test !DT.all_points_are_unique(pts)
-pts = [1.0 2.0 3.0 1.37; 3.5 1.2 0.0 7.1]
-@test DT.all_points_are_unique(pts)
-pts = [1.0 2.3 4.5 1.0; 3.5 2.3 4.5 3.5]
-@test !DT.all_points_are_unique(pts)
+    pts = [[1.0, 2.0], [3.0, 4.0]]
+    @test DT.all_points_are_unique(pts)
+    push!(pts, [3.0, 4.0])
+    @test !DT.all_points_are_unique(pts)
+    pts = [1.0 2.0 3.0 1.37; 3.5 1.2 0.0 7.1]
+    @test DT.all_points_are_unique(pts)
+    pts = [1.0 2.3 4.5 1.0; 3.5 2.3 4.5 3.5]
+    @test !DT.all_points_are_unique(pts)
+end
+
+@testset "Midpoint computation" begin
+    pts = rand(2, 500)
+    T, adj, adj2v, DG = triangulate_bowyer(pts)
+    for e in edges(DG)
+        u, v = e
+        pu, pv = get_point(pts, u, v)
+        mid = (pu .+ pv) ./ 2
+        midx, midy = DelaunayTriangulation.edge_midpoint(e, pts)
+        @test midx ≈ mid[1]
+        @test midy ≈ mid[2]
+    end
+end
+
+@testset "Length computation" begin
+    pts = rand(2, 500)
+    T, adj, adj2v, DG = triangulate_bowyer(pts)
+    for e in edges(DG)
+        u, v = e
+        pu, pv = get_point(pts, u, v)
+        ℓ = norm(pv .- pu)
+        ℓs = DelaunayTriangulation.edge_length(e, pts)
+        @test ℓ ≈ ℓs
+    end
+end
+
+@testset "Testing if opposite angle is obtuse" begin
+    for _ in 1:500
+        pts = rand(2, 500)
+        T, adj, adj2v, DG = triangulate_bowyer(pts)
+        for V in T
+            i, j, k = indices(V)
+            pᵢ, pⱼ, pₖ = get_point(pts, i, j, k)
+            e1 = pⱼ .- pᵢ
+            e2 = pₖ .- pⱼ
+            e3 = pᵢ .- pₖ
+            θ1 = acos(dot(e1, e2) / (norm(e1) * norm(e2)))
+            θ2 = acos(dot(e2, e3) / (norm(e2) * norm(e3)))
+            θ3 = acos(dot(e3, e1) / (norm(e3) * norm(e1)))
+            angle_opposite_1 = θ2
+            angle_opposite_2 = θ3
+            angle_opposite_3 = θ1
+            angle_opposite_1_obtuse = θ2 > π / 2
+            angle_opposite_2_obtuse = θ3 > π / 2
+            angle_opposite_3_obtuse = θ1 > π / 2
+            @test angle_opposite_1_obtuse == DT.opposite_angle_is_obtuse(norm(e2), norm(e3), norm(e1))
+            @test angle_opposite_2_obtuse == DT.opposite_angle_is_obtuse(norm(e3), norm(e1), norm(e2))
+            @test angle_opposite_3_obtuse == DT.opposite_angle_is_obtuse(norm(e1), norm(e2), norm(e3))
+        end
+    end
 end
