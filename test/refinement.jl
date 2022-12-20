@@ -84,15 +84,51 @@ end
                     @test !encroached
                 end
             end
-            if encroached
-                res = Bool[]
-                for i in axes(pts, 2)
-                    if i ∉ e
-                        push!(res, DT.encroaches_upon(pts[:, i], e, pts))
-                    end
+        end
+    end
+    for _ in 1:500
+        i, j = rand(1:30, 2)
+        e = (i, j)
+        encroached = DT.segment_encroached(e, adj, pts)
+        if !DT.edge_exists(i, j, adj)
+            @test encroached
+        else
+            k, ℓ = DT.get_edge(adj, e[1], e[2]), DT.get_edge(adj, e[2], e[1])
+            i, j = e
+            pᵢ, pⱼ = pts[:, i], pts[:, j]
+            if k ≠ DT.BoundaryIndex && k ≠ DT.DefaultAdjacentValue && ℓ ≠ DT.BoundaryIndex && ℓ ≠ DT.DefaultAdjacentValue
+                pₖ, pₗ = pts[:, k], pts[:, ℓ]
+                pjk = pₖ - pⱼ
+                pki = pᵢ - pₖ
+                piℓ = pₗ - pᵢ
+                pℓj = pⱼ - pₗ
+                θij = acos(dot(pjk, pki) / (norm(pjk) * norm(pki)))
+                θji = acos(dot(piℓ, pℓj) / norm(piℓ) * norm(pℓj))
+                if θij > π / 2 || θji > π / 2
+                    @test encroached
+                else
+                    @test !encroached
                 end
-                @show e
-                @test any(res)
+            elseif k ≠ DT.BoundaryIndex && k ≠ DT.DefaultAdjacentValue
+                pₖ = pts[:, k]
+                pjk = pₖ - pⱼ
+                pki = pᵢ - pₖ
+                θij = acos(dot(pjk, pki) / (norm(pjk) * norm(pki)))
+                if θij > π / 2
+                    @test encroached
+                else
+                    @test !encroached
+                end
+            elseif ℓ ≠ DT.BoundaryIndex && ℓ ≠ DT.DefaultAdjacentValue
+                pₗ = pts[:, ℓ]
+                piℓ = pₗ - pᵢ
+                pℓj = pⱼ - pₗ
+                θji = acos(dot(piℓ, pℓj) / norm(piℓ) * norm(pℓj))
+                if θji > π / 2
+                    @test encroached
+                else
+                    @test !encroached
+                end
             end
         end
     end
