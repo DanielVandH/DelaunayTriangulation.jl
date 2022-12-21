@@ -85,3 +85,28 @@ function segment_encroached(e, adj, pts)
     end
 end
 
+"""
+    is_skinny(edge_radius_ratio, critical_edge_radius_ratio)
+
+Given an edge ratio ratio of a triangle, and a maximum edge radius ratio, returns `true` 
+if the triangle is skinny and `false` otherwise. 
+
+A triangle is said to be skinny if its edge radius ratio, `ρ`, exceeds twice a designated 
+maximum edge radius ratio, `ρᶜ`, i.e. if `ρ > 2ρᶜ`.
+"""
+function is_skinny(edge_radius_ratio, critical_edge_radius_ratio)
+    return edge_radius_ratio > 2critical_edge_radius_ratio
+end
+
+"""
+    is_oversized(edge_radius_ratio, critical_edge_radius_ratio)
+
+Given an edge ratio ratio of a triangle, and a maximum edge radius ratio, returns `true` 
+if the triangle is oversized and `false` otherwise. 
+
+A triangle is said to be oversized if its edge radius ratio, `ρ`, satisfies 
+`ρᶜ < ρ < 2ρᶜ`, where `ρᶜ` is some designated maximum edge radius ratio.
+"""
+function is_oversized(edge_radius_ratio, critical_edge_radius_ratio)
+    return critical_edge_radius_ratio < edge_radius_ratio < 2critical_edge_radius_ratio
+end

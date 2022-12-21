@@ -133,3 +133,39 @@ end
         end
     end
 end
+
+@testset "Skinny and oversized triangles" begin
+    A = [0.727775900868, 2.4317500969586]
+    B = [1.181022874267, 2.404192847742]
+    C = [1.64, 2.44] # needle
+    T = (1, 2, 3)
+    pts = [A, B, C]
+    ρ = DT.edge_radius_ratio(T, pts)
+    @test ρ ≈ 7.2777532478509 rtol = 1e-3
+    @test DT.is_skinny(ρ, √2)
+    @test DT.is_skinny(ρ, 1.0)
+    @test !DT.is_skinny(ρ, 6.2)
+    @test DT.is_skinny(ρ, 3.6)
+    @test !DT.is_skinny(ρ, 3.7)
+    @test DT.is_oversized(ρ, 3.7)
+    @test DT.is_oversized(ρ, 7.0)
+    pts[2] = [0.7315173512548, 2.4081172794674] # cap
+    ρ = DT.edge_radius_ratio(T, pts)
+    @test ρ ≈ 19.2059067379818
+    @test DT.is_skinny(ρ, √2)
+    @test DT.is_skinny(ρ, 8.0)
+    @test !DT.is_skinny(ρ, 10.0)
+    @test !DT.is_oversized(ρ, 5.0)
+    @test DT.is_oversized(ρ, 15.0)
+    pts[2] = [0.9849691359043, 2.2425560330431] # bit large
+    ρ = DT.edge_radius_ratio(T, pts)
+    @test ρ ≈ 1.786156210909
+    @test !DT.is_skinny(ρ, √2)
+    @test DT.is_oversized(ρ, √2)
+    @test !DT.is_oversized(ρ, 2.0)
+    pts[2] = [1.1965196174465, 2.054511605612] # standard
+    ρ = DT.edge_radius_ratio(T, pts)
+    @test ρ ≈ 0.788660948192 rtol = 1e-3
+    @test !DT.is_skinny(ρ, √2)
+    @test !DT.is_oversized(ρ, √2)
+end
