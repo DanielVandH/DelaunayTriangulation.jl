@@ -110,3 +110,22 @@ A triangle is said to be oversized if its edge radius ratio, `ρ`, satisfies
 function is_oversized(edge_radius_ratio, critical_edge_radius_ratio)
     return critical_edge_radius_ratio < edge_radius_ratio < 2critical_edge_radius_ratio
 end
+
+"""
+    classify_triangle_and_find_encroached_segments(T, adj, pts)
+
+Given a triangle `T`, an adjacent map `adj`, and a point set `pts`, 
+finds the edges of `T` that are encroached. Also classifies the triangle 
+as being skinny (`1`), oversized (`-1`), or adequate (`0`). Finally, 
+the edge-radius ratio is also returned. 
+
+See also [`segment_encroached`](@ref) and [`encroaches_upon`](@ref). Also see 
+[`edge_radius_ratio`](@ref).
+"""
+function classify_triangle_and_find_encroached_segments(T, adj, pts)
+    i, j, k = indices(T)
+    u = get_edge(adj, j, i)
+    v = get_edge(adj, k, j)
+    w = get_edge(adj, i, k)
+    
+end
